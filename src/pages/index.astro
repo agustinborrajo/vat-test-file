@@ -5,46 +5,82 @@ import Footer from '../components/Footer.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 ---
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-	</head>
-	<body>
-		<Header />
-		<main>
-			<h1>🧑‍🚀 Hello, Astronaut!</h1>
-			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This
-				template serves as a lightweight, minimally-styled starting point for anyone looking to build
-				a personal website, blog, or portfolio with Astro.
-			</p>
-			<p>
-				This template comes with a few integrations already configured in your
-				<code>astro.config.mjs</code> file. You can customize your setup with
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-				React, or Vue to your project.
-			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to <a href="https://docs.astro.build/"
-					>read the docs
-				</a> or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out <a
-					href="https://github.com/Charca/astro-blog-template"
-					>astro-blog-template
-				</a> by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
-		</main>
-		<Footer />
-	</body>
+
+  <!--     +---------------------+                                              -->
+  <!--     | VAT Vulnerabilities |                                              --> 
+  <!--     +---------------------+-------------------------------------------+  -->
+  <!--     | Type                | Description                               |  -->
+  <!--     | XSS                 | Reflected and DOM-based injection points  |  -->
+  <!--     | Insecure JS         | eval(), document.write()                  |  -->
+  <!--     | Insecure Form       | Sends credentials via GET                 |  -->
+  <!--     | Insecure Storage    | Stores sensitive data in localStorage     |  -->
+  <!--     | Base64 Image        | Embedded image to simulate asset handling |  -->
+  <!--     | Clickjacking        | No X-Frame-Options headers                |  -->
+  <!--     | CSRF Simulation     | Form with no CSRF protection              |  -->
+  <!--     +---------------------+-------------------------------------------+  -->
+
+<head>
+  <meta charset="UTF-8">
+  <title>VAT Test Page</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f9f9f9; }
+    input, button { margin: 5px; padding: 5px; }
+    #output { margin-top: 10px; color: red; }
+  </style>
+</head>
+<body>
+
+  <h1>Welcome to the Vulnerable Test Page</h1>
+
+  <!-- Reflected XSS -->
+  <form method="GET" action="">
+    <input type="text" name="search" value="">
+    <input type="submit" value="Search">
+  </form>
+
+  <!-- DOM-based XSS -->
+  <div id="result"></div>
+  <script>
+    const query = new URLSearchParams(location.search).get("search");
+    if (query) {
+      document.getElementById("result").innerHTML = "Result: " + query;
+    }
+  </script>
+
+  <!-- Insecure Form (GET method for credentials) -->
+  <form method="GET" action="/login">
+    <input type="text" name="username" placeholder="Username">
+    <input type="password" name="password" placeholder="Password">
+    <input type="submit" value="Login">
+  </form>
+
+  <!-- SQL Injection Simulation -->
+  <form method="POST" action="/search">
+    <label for="product">Product ID:</label>
+    <input type="text" name="product" id="product" value="1 OR 1=1">
+    <input type="submit" value="Search">
+  </form>
+
+  <!-- Insecure JavaScript -->
+  <script>
+    const userInput = "alert('Injected')";
+    eval(userInput); // Dangerous use of eval
+
+    document.write("<p>Welcome user</p>"); // Unsafe document.write
+
+    localStorage.setItem("token", "insecure-token"); // Sensitive data in localStorage
+  </script>
+
+  <!-- Insecure Cookies -->
+  <script>
+    document.cookie = "sessionid=abc123"; // No HttpOnly, Secure, or SameSite flags
+    document.cookie = "auth=admin; path=/"; // Easily accessible via JS
+  </script>
+
+  <!-- Embedded base64 image -->
+  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==" alt="Test Image">
+
+</body>
 </html>

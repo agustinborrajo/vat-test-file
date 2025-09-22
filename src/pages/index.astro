@@ -4,4 +4,427 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 ---
+<!DOCTYPE html>
+<html lang="en">
+  <!--     +---------------------+                                              -->
+  <!--     | VAT Vulnerabilities |                                              --> 
+  <!--     +---------------------+-------------------------------------------+  -->
+  <!--     | Type                | Description                               |  -->
+  <!--     | XSS                 | Reflected and DOM-based injection points  |  -->
+  <!--     | Insecure JS         | eval(), document.write()                  |  -->
+  <!--     | Insecure Form       | Sends credentials via GET                 |  -->
+  <!--     | Insecure Storage    | Stores sensitive data in localStorage     |  -->
+  <!--     | Base64 Image        | Embedded image to simulate asset handling |  -->
+  <!--     | Clickjacking        | No X-Frame-Options headers                |  -->
+  <!--     | CSRF Simulation     | Form with no CSRF protection              |  -->
+  <!--     | ADDITIONAL VULNERABILITIES:                                     |  -->
+  <!--     | Open Redirect       | Unvalidated redirect parameter            |  -->
+  <!--     | LDAP Injection      | Unsafe LDAP query construction            |  -->
+  <!--     | Path Traversal      | File access via directory traversal       |  -->
+  <!--     | Command Injection   | OS command execution simulation           |  -->
+  <!--     | XXE Simulation      | XML External Entity processing            |  -->
+  <!--     | Insecure Deserialization | JSON parsing vulnerabilities         |  -->
+  <!--     | SSRF Simulation     | Server-Side Request Forgery               |  -->
+  <!--     | Weak Crypto         | Insecure encryption/hashing methods       |  -->
+  <!--     | Information Disclosure | Debug info and error messages          |  -->
+  <!--     | IDOR Simulation     | Insecure Direct Object References         |  -->
+  <!--     +---------------------+-------------------------------------------+  -->
+<head>
+  <meta charset="UTF-8">
+  <title>Extended VAT Test Application</title>
+  <style>
+    body { 
+      font-family: sans-serif; 
+      padding: 20px; 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    .vuln-section {
+      background: #f8f9fa;
+      border-left: 4px solid #dc3545;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 5px;
+    }
+    .vuln-title {
+      color: #dc3545;
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    input, button, textarea, select { 
+      margin: 5px; 
+      padding: 8px; 
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover { background: #0056b3; }
+    #output, .error-msg { 
+      margin-top: 10px; 
+      color: red; 
+      font-weight: bold;
+    }
+    .success-msg { color: green; font-weight: bold; }
+    .warning-msg { color: orange; font-weight: bold; }
+    .debug-info {
+      background: #2d3748;
+      color: #68d391;
+      padding: 10px;
+      font-family: monospace;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    iframe {
+      width: 100%;
+      height: 200px;
+      border: 1px solid #ddd;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔒 Extended VAT (Vulnerability Assessment Testing) Application</h1>
+    <p><em>This application contains intentional security vulnerabilities for testing purposes only.</em></p>
 
+    <!-- Original Vulnerabilities -->
+    <div class="vuln-section">
+      <div class="vuln-title">1. Reflected XSS Vulnerability</div>
+      <form method="GET" action="">
+        <input type="text" name="search" value="" placeholder="Try: <script>alert('XSS')</script>">
+        <input type="submit" value="Search">
+      </form>
+      <div id="result"></div>
+    </div>
+
+    <div class="vuln-section">
+      <div class="vuln-title">2. Insecure Authentication (GET Method)</div>
+      <form method="GET" action="/login">
+        <input type="text" name="username" placeholder="Username">
+        <input type="password" name="password" placeholder="Password">
+        <input type="submit" value="Login">
+      </form>
+    </div>
+
+    <div class="vuln-section">
+      <div class="vuln-title">3. SQL Injection Simulation</div>
+      <form method="POST" action="/search">
+        <label for="product">Product ID:</label>
+        <input type="text" name="product" id="product" value="1 OR 1=1" placeholder="Try: 1' OR '1'='1">
+        <input type="submit" value="Search Product">
+      </form>
+    </div>
+
+    <!-- NEW VULNERABILITIES START HERE -->
+
+    <div class="vuln-section">
+      <div class="vuln-title">4. Open Redirect Vulnerability</div>
+      <p>Click to redirect:</p>
+      <a href="#" onclick="redirectUser()">Redirect to Partner Site</a>
+      <input type="text" id="redirectUrl" placeholder="Enter redirect URL" value="http://malicious-site.com">
+      <button onclick="performRedirect()">Custom Redirect</button>
+    </div>
+
+    <div class="vuln-section">
+      <div class="vuln-title">5. LDAP Injection Simulation</div>
+      <form method="POST" action="/ldap-search">
+        <label for="username">LDAP Username Search:</label>
+        <input type="text" name="username" id="ldapUser" value="admin)(&" placeholder="Try: admin)(&">
+        <button type="button" onclick="simulateLDAP()">Search LDAP</button>
+      </form>
+      <div id="ldapResult"></div>
+    </div>
+
+    <div class="vuln-section">
+      <div class="vuln-title">6. Path Traversal Vulnerability</div>
+      <form method="GET" action="/download">
+        <label for="file">File to download:</label>
+        <input type="text" name="file" id="fileName" value="../../../../etc/passwd" placeholder="Try: ../../sensitive.txt">
+        <button type="button" onclick="simulateFileAccess()">Download File</button>
+      </form>
+      <div id="fileResult"></div>
+    </div>
+
+    <div class="vuln-section">
+      <div class="vuln-title">7. Command Injection Simulation</div>
+      <form method="POST" action="/ping">
+        <label for="host">Host to ping:</label>
+        <input type="text" name="host" id="hostInput" value="127.0.0.1; cat /etc/passwd" placeholder="Try: 127.0.0.1; whoami">
+        <button type="button" onclick="simulateCommand()">Execute Ping</button>
+      </form>
+      <div id="commandResult"></div>
+    </div>
+
+    <div class="vuln-section">
+      <div class="vuln-title">8. XXE (XML External Entity) Simulation</div>
+      <textarea id="xmlInput" rows="4" cols="50" placeholder="Enter XML data">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE foo [<!ENTITY xxe SYSTEM "file:///etc/passwd">]>
+<root>&xxe;</root>
+      </textarea><br>
+      <button onclick="processXML()">Process XML</button>
+      <div id="xmlResult"></div>
+    </div>
+
+    <div class="vuln-section">
+      <div class="vuln-title">9. Insecure Deserialization</div>
+      <textarea id="jsonInput" rows="3" cols="50" placeholder="Enter JSON object">
+{"__proto__": {"admin": true}, "username": "user", "role": "guest"}
+      </textarea><br>
+      <button onclick="deserializeData()">Deserialize Object</button>
+      <div id="deserializeResult"></div>
+    </div>
+
+    <div class="vuln-section">
+      <div class="vuln-title">10. SSRF (Server-Side Request Forgery) Simulation</div>
+      <form method="POST" action="/fetch-url">
+        <label for="url">URL to fetch:</label>
+        <input type="text" name="url" id="ssrfUrl" value="http://localhost:8080/admin" placeholder="Try: http://169.254.169.254/metadata">
+        <button type="button" onclick="simulateSSRF()">Fetch URL</button>
+      </form>
+      <div id="ssrfResult"></div>
+    </div>
+
+    <div class="vuln-section">
+      <div class="vuln-title">11. Weak Cryptography</div>
+      <input type="text" id="plaintext" placeholder="Text to encrypt" value="sensitive data">
+      <button onclick="weakEncrypt()">Encrypt (MD5)</button>
+      <button onclick="base64Encode()">Base64 Encode</button>
+      <div id="cryptoResult"></div>
+    </div>
+
+    <div class="vuln-section">
+      <div class="vuln-title">12. Information Disclosure</div>
+      <button onclick="showDebugInfo()">Show Debug Information</button>
+      <button onclick="simulateError()">Trigger Error</button>
+      <div id="debugOutput"></div>
+    </div>
+
+    <div class="vuln-section">
+      <div class="vuln-title">13. IDOR (Insecure Direct Object Reference)</div>
+      <form method="GET" action="/user-profile">
+        <label for="userId">User ID:</label>
+        <input type="text" name="userId" id="userIdInput" value="123" placeholder="Try different user IDs">
+        <button type="button" onclick="accessUserProfile()">View Profile</button>
+      </form>
+      <div id="idorResult"></div>
+    </div>
+
+    <!-- Embedded base64 image -->
+    <div class="vuln-section">
+      <div class="vuln-title">Base64 Embedded Asset</div>
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==" alt="Test Image">
+    </div>
+
+    <!-- Clickjacking vulnerability iframe -->
+    <div class="vuln-section">
+      <div class="vuln-title">Clickjacking Vulnerability</div>
+      <iframe src="about:blank" id="vulnerableFrame"></iframe>
+    </div>
+
+  </div>
+
+  <!-- All the vulnerable JavaScript code -->
+  <script>
+    // Original DOM-based XSS
+    const query = new URLSearchParams(location.search).get("search");
+    if (query) {
+      document.getElementById("result").innerHTML = "Search Result: " + query;
+    }
+
+    // Original insecure JavaScript practices
+    const userInput = "console.log('Potentially dangerous eval')";
+    try {
+      eval(userInput); // Dangerous use of eval
+    } catch(e) { console.log("Eval error:", e); }
+    
+    document.write("<p style='color: orange;'>⚠️ This page uses document.write() - potentially unsafe</p>");
+
+    // Insecure storage
+    localStorage.setItem("authToken", "eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0");
+    localStorage.setItem("userRole", "admin");
+    localStorage.setItem("apiKey", "sk-1234567890abcdef");
+
+    // Insecure cookies
+    document.cookie = "sessionid=abc123def456; path=/";
+    document.cookie = "isAdmin=true; path=/";
+    document.cookie = "token=insecure-token-12345";
+
+    // NEW VULNERABILITY FUNCTIONS
+
+    // Open Redirect
+    function redirectUser() {
+      const url = new URLSearchParams(location.search).get("redirect") || "http://example-malicious-site.com";
+      alert("Redirecting to: " + url + " (Simulated - actual redirect blocked for safety)");
+    }
+
+    function performRedirect() {
+      const url = document.getElementById("redirectUrl").value;
+      alert("Would redirect to: " + url + " (Simulated for safety)");
+    }
+
+    // LDAP Injection
+    function simulateLDAP() {
+      const username = document.getElementById("ldapUser").value;
+      const ldapQuery = `(&(objectClass=person)(uid=${username}))`;
+      document.getElementById("ldapResult").innerHTML = 
+        `<div class="debug-info">LDAP Query: ${ldapQuery}<br>⚠️ Potentially vulnerable to injection</div>`;
+    }
+
+    // Path Traversal
+    function simulateFileAccess() {
+      const filename = document.getElementById("fileName").value;
+      document.getElementById("fileResult").innerHTML = 
+        `<div class="error-msg">Attempting to access: ${filename}<br>⚠️ Path traversal detected!</div>`;
+    }
+
+    // Command Injection
+    function simulateCommand() {
+      const host = document.getElementById("hostInput").value;
+      const command = `ping -c 4 ${host}`;
+      document.getElementById("commandResult").innerHTML = 
+        `<div class="debug-info">Executing: ${command}<br>⚠️ Command injection vulnerability detected!</div>`;
+    }
+
+    // XXE Processing
+    function processXML() {
+      const xmlData = document.getElementById("xmlInput").value;
+      try {
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlData, "text/xml");
+        document.getElementById("xmlResult").innerHTML = 
+          `<div class="warning-msg">XML processed. ⚠️ XXE vulnerabilities possible with external entity processing!</div>`;
+      } catch (e) {
+        document.getElementById("xmlResult").innerHTML = 
+          `<div class="error-msg">XML parsing error: ${e.message}</div>`;
+      }
+    }
+
+    // Insecure Deserialization
+    function deserializeData() {
+      const jsonData = document.getElementById("jsonInput").value;
+      try {
+        const obj = JSON.parse(jsonData);
+        // Simulate prototype pollution
+        const result = Object.assign({}, obj);
+        document.getElementById("deserializeResult").innerHTML = 
+          `<div class="warning-msg">Object deserialized: ${JSON.stringify(result)}<br>⚠️ Prototype pollution possible!</div>`;
+      } catch (e) {
+        document.getElementById("deserializeResult").innerHTML = 
+          `<div class="error-msg">Deserialization error: ${e.message}</div>`;
+      }
+    }
+
+    // SSRF Simulation
+    function simulateSSRF() {
+      const url = document.getElementById("ssrfUrl").value;
+      document.getElementById("ssrfResult").innerHTML = 
+        `<div class="error-msg">Attempting to fetch: ${url}<br>⚠️ SSRF vulnerability - accessing internal resources!</div>`;
+    }
+
+    // Weak Cryptography
+    function weakEncrypt() {
+      const text = document.getElementById("plaintext").value;
+      // Simulate MD5 hash (weak)
+      const hash = btoa(text).split('').reverse().join(''); // Fake "encryption"
+      document.getElementById("cryptoResult").innerHTML = 
+        `<div class="warning-msg">MD5 Hash (weak): ${hash}<br>⚠️ Using deprecated/weak hashing!</div>`;
+    }
+
+    function base64Encode() {
+      const text = document.getElementById("plaintext").value;
+      const encoded = btoa(text);
+      document.getElementById("cryptoResult").innerHTML = 
+        `<div class="warning-msg">Base64: ${encoded}<br>⚠️ Base64 is encoding, not encryption!</div>`;
+    }
+
+    // Information Disclosure
+    function showDebugInfo() {
+      const debugInfo = {
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        cookieEnabled: navigator.cookieEnabled,
+        language: navigator.language,
+        localStorage: Object.keys(localStorage),
+        sessionStorage: Object.keys(sessionStorage || {}),
+        location: window.location.href,
+        referrer: document.referrer || "None"
+      };
+      
+      document.getElementById("debugOutput").innerHTML = 
+        `<div class="debug-info">DEBUG INFO:<br>${JSON.stringify(debugInfo, null, 2)}</div>`;
+    }
+
+    function simulateError() {
+      const errorStack = `Error: Database connection failed
+    at getUserData (/app/models/user.js:45)
+    at /app/routes/api.js:23
+    at process._tickCallback (internal/process/next_tick.js:68)
+Database: mysql://admin:password123@localhost:3306/production_db
+Environment: production
+API Keys: sk-live-abc123, pk-test-def456`;
+
+      document.getElementById("debugOutput").innerHTML = 
+        `<div class="error-msg">SYSTEM ERROR:<br><pre>${errorStack}</pre>⚠️ Sensitive information leaked in error message!</div>`;
+    }
+
+    // IDOR Simulation
+    function accessUserProfile() {
+      const userId = document.getElementById("userIdInput").value;
+      const profiles = {
+        "123": { name: "John Doe", email: "john@example.com", role: "user", ssn: "123-45-6789" },
+        "124": { name: "Admin User", email: "admin@company.com", role: "admin", ssn: "987-65-4321" },
+        "125": { name: "Jane Smith", email: "jane@example.com", role: "user", ssn: "555-66-7777" }
+      };
+
+      const profile = profiles[userId] || { name: "Unknown", email: "N/A", role: "guest", ssn: "N/A" };
+      
+      document.getElementById("idorResult").innerHTML = 
+        `<div class="success-msg">Profile Data for User ${userId}:<br>
+         Name: ${profile.name}<br>
+         Email: ${profile.email}<br>
+         Role: ${profile.role}<br>
+         SSN: ${profile.ssn}<br>
+         ⚠️ IDOR vulnerability - accessing other users' data!</div>`;
+    }
+
+    // Initialize some vulnerable behaviors on page load
+    window.onload = function() {
+      // Simulate vulnerable iframe loading
+      document.getElementById("vulnerableFrame").src = "data:text/html,<h3 style='color:red;'>Clickjacking Target Frame - No X-Frame-Options!</h3>";
+      
+      // Show current vulnerabilities in console
+      console.log("🔓 VAT Application loaded with multiple security vulnerabilities");
+      console.log("📊 Local storage contains:", localStorage);
+      console.log("🍪 Cookies:", document.cookie);
+    };
+
+    // Global error handler that leaks information
+    window.onerror = function(msg, url, line, col, error) {
+      console.error("Exposed Error Details:", {
+        message: msg,
+        source: url,
+        line: line,
+        column: col,
+        stack: error ? error.stack : "No stack trace"
+      });
+      return false;
+    };
+  </script>
+</body>
+</html>

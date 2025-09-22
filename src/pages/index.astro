@@ -4,456 +4,1426 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 ---
-
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-  </head>
-  <body>
-    <Header title={SITE_TITLE} />
+  <!--     +---------------------------------------------+                      -->
+  <!--     | CLIENT-SIDE VAT VULNERABILITIES TEST PAGE  |                      --> 
+  <!--     +---------------------------------------------+-------------------+  -->
+  <!--     | #  | Vulnerability Type           | Category              |  -->
+  <!--     +----+------------------------------+-----------------------+  -->
+  <!--     | 1  | DOM-based XSS               | Injection             |  -->
+  <!--     | 2  | Reflected XSS               | Injection             |  -->
+  <!--     | 3  | Client-side SQL Injection   | Injection             |  -->
+  <!--     | 4  | eval() Code Injection       | Code Execution        |  -->
+  <!--     | 5  | innerHTML Injection         | DOM Manipulation      |  -->
+  <!--     | 6  | document.write() Injection  | Legacy DOM            |  -->
+  <!--     | 7  | Insecure localStorage       | Data Storage          |  -->
+  <!--     | 8  | Insecure sessionStorage     | Data Storage          |  -->
+  <!--     | 9  | Insecure Cookies            | Session Management    |  -->
+  <!--     | 10 | Clickjacking Vulnerability  | UI Redress            |  -->
+  <!--     | 11 | Open Redirect (Client)      | URL Manipulation      |  -->
+  <!--     | 12 | CSRF Token Bypass          | Authentication        |  -->
+  <!--     | 13 | Weak Random Generation     | Cryptography          |  -->
+  <!--     | 14 | Insecure Crypto (Base64)   | Cryptography          |  -->
+  <!--     | 15 | Information Disclosure     | Data Exposure         |  -->
+  <!--     | 16 | Prototype Pollution        | Object Manipulation   |  -->
+  <!--     | 17 | postMessage Vulnerabilities| Cross-Frame Comm      |  -->
+  <!--     | 18 | Insecure JSON Parsing      | Deserialization       |  -->
+  <!--     | 19 | Client-Side Path Traversal | File Access           |  -->
+  <!--     | 20 | Unsafe Dynamic Loading     | Code Injection        |  -->
+  <!--     +----+------------------------------+-----------------------+  -->
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Client-Side VAT Test Suite - 20 Vulnerabilities</title>
+  
+  <!-- VULNERABILITY 10: Missing X-Frame-Options (Clickjacking) -->
+  <!-- No X-Frame-Options header - allows iframe embedding -->
+  
+  <style>
+    /* Embedded CSS for comprehensive styling */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .header h1 {
+      color: #dc3545;
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .header .subtitle {
+      color: #666;
+      font-size: 1.1rem;
+      margin-bottom: 15px;
+    }
+
+    .warning-banner {
+      background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-weight: bold;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .vulnerability-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 20px;
+      margin-top: 30px;
+    }
+
+    .vuln-card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      border-left: 5px solid #dc3545;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .vuln-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .vuln-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .vuln-number {
+      background: #dc3545;
+      color: white;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      margin-right: 15px;
+      font-size: 0.9rem;
+    }
+
+    .vuln-title {
+      color: #dc3545;
+      font-weight: bold;
+      font-size: 1.2rem;
+      flex: 1;
+    }
+
+    .vuln-category {
+      background: #ffc107;
+      color: #333;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+
+    .vuln-description {
+      color: #666;
+      margin-bottom: 15px;
+      font-style: italic;
+    }
+
+    .test-controls {
+      margin: 15px 0;
+    }
+
+    input, button, textarea, select {
+      margin: 5px 5px 5px 0;
+      padding: 10px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    }
+
+    button {
+      background: linear-gradient(135deg, #007bff, #0056b3);
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, #0056b3, #003d82);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+    }
+
+    button.danger {
+      background: linear-gradient(135deg, #dc3545, #c82333);
+    }
+
+    button.danger:hover {
+      background: linear-gradient(135deg, #c82333, #a71e2a);
+    }
+
+    .result-display {
+      margin-top: 15px;
+      padding: 15px;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      min-height: 40px;
+      border: 2px dashed #e0e0e0;
+      background: #f8f9fa;
+    }
+
+    .error { 
+      background: #ffebee;
+      border-color: #f44336;
+      color: #c62828;
+    }
     
-    <!--     +---------------------+                                              -->
-    <!--     | VAT Vulnerabilities |                                              --> 
-    <!--     +---------------------+-------------------------------------------+  -->
-    <!--     | Type                | Description                               |  -->
-    <!--     | XSS                 | Reflected and DOM-based injection points  |  -->
-    <!--     | Insecure JS         | eval(), document.write()                  |  -->
-    <!--     | Insecure Form       | Sends credentials via GET                 |  -->
-    <!--     | Insecure Storage    | Stores sensitive data in localStorage     |  -->
-    <!--     | Base64 Image        | Embedded image to simulate asset handling |  -->
-    <!--     | Clickjacking        | No X-Frame-Options headers                |  -->
-    <!--     | CSRF Simulation     | Form with no CSRF protection              |  -->
-    <!--     | ADDITIONAL VULNERABILITIES:                                       |  -->
-    <!--     | Open Redirect       | Unvalidated redirect parameter            |  -->
-    <!--     | LDAP Injection      | Unsafe LDAP query construction            |  -->
-    <!--     | Path Traversal      | File access via directory traversal       |  -->
-    <!--     | Command Injection   | OS command execution simulation           |  -->
-    <!--     | XXE Simulation      | XML External Entity processing            |  -->
-    <!--     | Insecure Deserialization | JSON parsing vulnerabilities        |  -->
-    <!--     | SSRF Simulation     | Server-Side Request Forgery               |  -->
-    <!--     | Weak Crypto         | Insecure encryption/hashing methods       |  -->
-    <!--     | Information Disclosure | Debug info and error messages          |  -->
-    <!--     | IDOR Simulation     | Insecure Direct Object References        |  -->
-    <!--     +---------------------+-------------------------------------------+  -->
+    .success { 
+      background: #e8f5e8;
+      border-color: #4caf50;
+      color: #2e7d32;
+    }
+    
+    .warning { 
+      background: #fff3e0;
+      border-color: #ff9800;
+      color: #ef6c00;
+    }
+    
+    .info {
+      background: #e3f2fd;
+      border-color: #2196f3;
+      color: #1565c0;
+    }
 
-    <main>
-      <div class="container">
-        <h1>🔒 Extended VAT (Vulnerability Assessment Testing) Application</h1>
-        <p><em>This application contains intentional security vulnerabilities for testing purposes only.</em></p>
+    .debug-info {
+      background: #1a1a1a;
+      color: #00ff41;
+      padding: 15px;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      margin: 10px 0;
+      border: 1px solid #333;
+    }
 
-        <!-- Original Vulnerabilities -->
-        <div class="vuln-section">
-          <div class="vuln-title">1. Reflected XSS Vulnerability</div>
-          <form method="GET" action="">
-            <input type="text" name="search" value="" placeholder="Try: <script>alert('XSS')</script>">
-            <input type="submit" value="Search">
-          </form>
-          <div id="result"></div>
-        </div>
+    .clickjack-demo {
+      position: relative;
+      width: 100%;
+      height: 200px;
+      border: 2px solid #dc3545;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 15px 0;
+    }
 
-        <div class="vuln-section">
-          <div class="vuln-title">2. Insecure Authentication (GET Method)</div>
-          <form method="GET" action="/login">
-            <input type="text" name="username" placeholder="Username">
-            <input type="password" name="password" placeholder="Password">
-            <input type="submit" value="Login">
-          </form>
-        </div>
+    .clickjack-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #dc3545;
+      z-index: 10;
+      cursor: pointer;
+    }
 
-        <div class="vuln-section">
-          <div class="vuln-title">3. SQL Injection Simulation</div>
-          <form method="POST" action="/search">
-            <label for="product">Product ID:</label>
-            <input type="text" name="product" id="product" value="1 OR 1=1" placeholder="Try: 1' OR '1'='1">
-            <input type="submit" value="Search Product">
-          </form>
-        </div>
+    .stats-panel {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      border-radius: 15px;
+      margin: 20px 0;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
 
-        <!-- NEW VULNERABILITIES START HERE -->
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
 
-        <div class="vuln-section">
-          <div class="vuln-title">4. Open Redirect Vulnerability</div>
-          <p>Click to redirect:</p>
-          <a href="#" onclick="redirectUser()">Redirect to Partner Site</a>
-          <input type="text" id="redirectUrl" placeholder="Enter redirect URL" value="http://malicious-site.com">
-          <button onclick="performRedirect()">Custom Redirect</button>
-        </div>
+    .stat-item {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+    }
 
-        <div class="vuln-section">
-          <div class="vuln-title">5. LDAP Injection Simulation</div>
-          <form method="POST" action="/ldap-search">
-            <label for="username">LDAP Username Search:</label>
-            <input type="text" name="username" id="ldapUser" value="admin)(&" placeholder="Try: admin)(&">
-            <button type="button" onclick="simulateLDAP()">Search LDAP</button>
-          </form>
-          <div id="ldapResult"></div>
-        </div>
+    .stat-number {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
 
-        <div class="vuln-section">
-          <div class="vuln-title">6. Path Traversal Vulnerability</div>
-          <form method="GET" action="/download">
-            <label for="file">File to download:</label>
-            <input type="text" name="file" id="fileName" value="../../../../etc/passwd" placeholder="Try: ../../sensitive.txt">
-            <button type="button" onclick="simulateFileAccess()">Download File</button>
-          </form>
-          <div id="fileResult"></div>
-        </div>
+    .footer {
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      text-align: center;
+      padding: 20px;
+      margin-top: 50px;
+    }
 
-        <div class="vuln-section">
-          <div class="vuln-title">7. Command Injection Simulation</div>
-          <form method="POST" action="/ping">
-            <label for="host">Host to ping:</label>
-            <input type="text" name="host" id="hostInput" value="127.0.0.1; cat /etc/passwd" placeholder="Try: 127.0.0.1; whoami">
-            <button type="button" onclick="simulateCommand()">Execute Ping</button>
-          </form>
-          <div id="commandResult"></div>
-        </div>
-
-        <div class="vuln-section">
-          <div class="vuln-title">8. XXE (XML External Entity) Simulation</div>
-          <textarea id="xmlInput" rows="4" cols="50" placeholder="Enter XML data">
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE foo [<!ENTITY xxe SYSTEM "file:///etc/passwd">]>
-<root>&xxe;</root>
-          </textarea><br>
-          <button onclick="processXML()">Process XML</button>
-          <div id="xmlResult"></div>
-        </div>
-
-        <div class="vuln-section">
-          <div class="vuln-title">9. Insecure Deserialization</div>
-          <textarea id="jsonInput" rows="3" cols="50" placeholder="Enter JSON object">
-{"__proto__": {"admin": true}, "username": "user", "role": "guest"}
-          </textarea><br>
-          <button onclick="deserializeData()">Deserialize Object</button>
-          <div id="deserializeResult"></div>
-        </div>
-
-        <div class="vuln-section">
-          <div class="vuln-title">10. SSRF (Server-Side Request Forgery) Simulation</div>
-          <form method="POST" action="/fetch-url">
-            <label for="url">URL to fetch:</label>
-            <input type="text" name="url" id="ssrfUrl" value="http://localhost:8080/admin" placeholder="Try: http://169.254.169.254/metadata">
-            <button type="button" onclick="simulateSSRF()">Fetch URL</button>
-          </form>
-          <div id="ssrfResult"></div>
-        </div>
-
-        <div class="vuln-section">
-          <div class="vuln-title">11. Weak Cryptography</div>
-          <input type="text" id="plaintext" placeholder="Text to encrypt" value="sensitive data">
-          <button onclick="weakEncrypt()">Encrypt (MD5)</button>
-          <button onclick="base64Encode()">Base64 Encode</button>
-          <div id="cryptoResult"></div>
-        </div>
-
-        <div class="vuln-section">
-          <div class="vuln-title">12. Information Disclosure</div>
-          <button onclick="showDebugInfo()">Show Debug Information</button>
-          <button onclick="simulateError()">Trigger Error</button>
-          <div id="debugOutput"></div>
-        </div>
-
-        <div class="vuln-section">
-          <div class="vuln-title">13. IDOR (Insecure Direct Object Reference)</div>
-          <form method="GET" action="/user-profile">
-            <label for="userId">User ID:</label>
-            <input type="text" name="userId" id="userIdInput" value="123" placeholder="Try different user IDs">
-            <button type="button" onclick="accessUserProfile()">View Profile</button>
-          </form>
-          <div id="idorResult"></div>
-        </div>
-
-        <!-- Embedded base64 image -->
-        <div class="vuln-section">
-          <div class="vuln-title">Base64 Embedded Asset</div>
-          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==" alt="Test Image">
-        </div>
-
-        <!-- Clickjacking vulnerability iframe -->
-        <div class="vuln-section">
-          <div class="vuln-title">Clickjacking Vulnerability</div>
-          <iframe src="about:blank" id="vulnerableFrame"></iframe>
-        </div>
-
-      </div>
-    </main>
-
-    <Footer />
-
-    <!-- All the vulnerable JavaScript code -->
-    <script>
-      // Original DOM-based XSS
-      const query = new URLSearchParams(location.search).get("search");
-      if (query) {
-        document.getElementById("result").innerHTML = "Search Result: " + query;
-      }
-
-      // Original insecure JavaScript practices
-      const userInput = "console.log('Potentially dangerous eval')";
-      try {
-        eval(userInput); // Dangerous use of eval
-      } catch(e) { 
-        console.log("Eval error:", e); 
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .vulnerability-grid {
+        grid-template-columns: 1fr;
       }
       
-      document.write("<p style='color: orange;'>⚠️ This page uses document.write() - potentially unsafe</p>");
-
-      // Insecure storage
-      if (typeof Storage !== "undefined") {
-        localStorage.setItem("authToken", "eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0");
-        localStorage.setItem("userRole", "admin");
-        localStorage.setItem("apiKey", "sk-1234567890abcdef");
+      .header h1 {
+        font-size: 1.8rem;
       }
-
-      // Insecure cookies
-      document.cookie = "sessionid=abc123def456; path=/";
-      document.cookie = "isAdmin=true; path=/";
-      document.cookie = "token=insecure-token-12345";
-
-      // NEW VULNERABILITY FUNCTIONS
-
-      // Open Redirect
-      function redirectUser() {
-        const url = new URLSearchParams(location.search).get("redirect") || "http://example-malicious-site.com";
-        alert("Redirecting to: " + url + " (Simulated - actual redirect blocked for safety)");
-      }
-
-      function performRedirect() {
-        const url = document.getElementById("redirectUrl").value;
-        alert("Would redirect to: " + url + " (Simulated for safety)");
-      }
-
-      // LDAP Injection
-      function simulateLDAP() {
-        const username = document.getElementById("ldapUser").value;
-        const ldapQuery = `(&(objectClass=person)(uid=${username}))`;
-        document.getElementById("ldapResult").innerHTML = 
-          `<div class="debug-info">LDAP Query: ${ldapQuery}<br>⚠️ Potentially vulnerable to injection</div>`;
-      }
-
-      // Path Traversal
-      function simulateFileAccess() {
-        const filename = document.getElementById("fileName").value;
-        document.getElementById("fileResult").innerHTML = 
-          `<div class="error-msg">Attempting to access: ${filename}<br>⚠️ Path traversal detected!</div>`;
-      }
-
-      // Command Injection
-      function simulateCommand() {
-        const host = document.getElementById("hostInput").value;
-        const command = `ping -c 4 ${host}`;
-        document.getElementById("commandResult").innerHTML = 
-          `<div class="debug-info">Executing: ${command}<br>⚠️ Command injection vulnerability detected!</div>`;
-      }
-
-      // XXE Processing
-      function processXML() {
-        const xmlData = document.getElementById("xmlInput").value;
-        try {
-          const parser = new DOMParser();
-          const xmlDoc = parser.parseFromString(xmlData, "text/xml");
-          document.getElementById("xmlResult").innerHTML = 
-            `<div class="warning-msg">XML processed. ⚠️ XXE vulnerabilities possible with external entity processing!</div>`;
-        } catch (e) {
-          document.getElementById("xmlResult").innerHTML = 
-            `<div class="error-msg">XML parsing error: ${e.message}</div>`;
-        }
-      }
-
-      // Insecure Deserialization
-      function deserializeData() {
-        const jsonData = document.getElementById("jsonInput").value;
-        try {
-          const obj = JSON.parse(jsonData);
-          // Simulate prototype pollution
-          const result = Object.assign({}, obj);
-          document.getElementById("deserializeResult").innerHTML = 
-            `<div class="warning-msg">Object deserialized: ${JSON.stringify(result)}<br>⚠️ Prototype pollution possible!</div>`;
-        } catch (e) {
-          document.getElementById("deserializeResult").innerHTML = 
-            `<div class="error-msg">Deserialization error: ${e.message}</div>`;
-        }
-      }
-
-      // SSRF Simulation
-      function simulateSSRF() {
-        const url = document.getElementById("ssrfUrl").value;
-        document.getElementById("ssrfResult").innerHTML = 
-          `<div class="error-msg">Attempting to fetch: ${url}<br>⚠️ SSRF vulnerability - accessing internal resources!</div>`;
-      }
-
-      // Weak Cryptography
-      function weakEncrypt() {
-        const text = document.getElementById("plaintext").value;
-        // Simulate MD5 hash (weak)
-        const hash = btoa(text).split('').reverse().join(''); // Fake "encryption"
-        document.getElementById("cryptoResult").innerHTML = 
-          `<div class="warning-msg">MD5 Hash (weak): ${hash}<br>⚠️ Using deprecated/weak hashing!</div>`;
-      }
-
-      function base64Encode() {
-        const text = document.getElementById("plaintext").value;
-        const encoded = btoa(text);
-        document.getElementById("cryptoResult").innerHTML = 
-          `<div class="warning-msg">Base64: ${encoded}<br>⚠️ Base64 is encoding, not encryption!</div>`;
-      }
-
-      // Information Disclosure
-      function showDebugInfo() {
-        const debugInfo = {
-          userAgent: navigator.userAgent,
-          platform: navigator.platform,
-          cookieEnabled: navigator.cookieEnabled,
-          language: navigator.language,
-          localStorage: typeof Storage !== "undefined" ? Object.keys(localStorage) : [],
-          sessionStorage: typeof Storage !== "undefined" && sessionStorage ? Object.keys(sessionStorage) : [],
-          location: window.location.href,
-          referrer: document.referrer || "None"
-        };
-        
-        document.getElementById("debugOutput").innerHTML = 
-          `<div class="debug-info">DEBUG INFO:<br>${JSON.stringify(debugInfo, null, 2)}</div>`;
-      }
-
-      function simulateError() {
-        const errorStack = `Error: Database connection failed
-    at getUserData (/app/models/user.js:45)
-    at /app/routes/api.js:23
-    at process._tickCallback (internal/process/next_tick.js:68)
-Database: mysql://admin:password123@localhost:3306/production_db
-Environment: production
-API Keys: sk-live-abc123, pk-test-def456`;
-
-        document.getElementById("debugOutput").innerHTML = 
-          `<div class="error-msg">SYSTEM ERROR:<br><pre>${errorStack}</pre>⚠️ Sensitive information leaked in error message!</div>`;
-      }
-
-      // IDOR Simulation
-      function accessUserProfile() {
-        const userId = document.getElementById("userIdInput").value;
-        const profiles = {
-          "123": { name: "John Doe", email: "john@example.com", role: "user", ssn: "123-45-6789" },
-          "124": { name: "Admin User", email: "admin@company.com", role: "admin", ssn: "987-65-4321" },
-          "125": { name: "Jane Smith", email: "jane@example.com", role: "user", ssn: "555-66-7777" }
-        };
-
-        const profile = profiles[userId] || { name: "Unknown", email: "N/A", role: "guest", ssn: "N/A" };
-        
-        document.getElementById("idorResult").innerHTML = 
-          `<div class="success-msg">Profile Data for User ${userId}:<br>
-           Name: ${profile.name}<br>
-           Email: ${profile.email}<br>
-           Role: ${profile.role}<br>
-           SSN: ${profile.ssn}<br>
-           ⚠️ IDOR vulnerability - accessing other users' data!</div>`;
-      }
-
-      // Initialize some vulnerable behaviors on page load
-      window.onload = function() {
-        // Simulate vulnerable iframe loading
-        const iframe = document.getElementById("vulnerableFrame");
-        if (iframe) {
-          iframe.src = "data:text/html,<h3 style='color:red;'>Clickjacking Target Frame - No X-Frame-Options!</h3>";
-        }
-        
-        // Show current vulnerabilities in console
-        console.log("🔓 VAT Application loaded with multiple security vulnerabilities");
-        if (typeof Storage !== "undefined") {
-          console.log("📊 Local storage contains:", localStorage);
-        }
-        console.log("🍪 Cookies:", document.cookie);
-      };
-
-      // Global error handler that leaks information
-      window.onerror = function(msg, url, line, col, error) {
-        console.error("Exposed Error Details:", {
-          message: msg,
-          source: url,
-          line: line,
-          column: col,
-          stack: error ? error.stack : "No stack trace"
-        });
-        return false;
-      };
-    </script>
-
-    <style>
-      body { 
-        font-family: sans-serif; 
-        padding: 20px; 
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: #333;
-      }
+      
       .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        background: white;
-        padding: 30px;
-        border-radius: 10px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-      }
-      .vuln-section {
-        background: #f8f9fa;
-        border-left: 4px solid #dc3545;
-        padding: 20px;
-        margin: 20px 0;
-        border-radius: 5px;
-      }
-      .vuln-title {
-        color: #dc3545;
-        font-weight: bold;
-        font-size: 18px;
-        margin-bottom: 10px;
-      }
-      input, button, textarea, select { 
-        margin: 5px; 
-        padding: 8px; 
-        border: 1px solid #ddd;
-        border-radius: 4px;
-      }
-      button {
-        background: #007bff;
-        color: white;
-        border: none;
-        cursor: pointer;
-        transition: background 0.3s;
-      }
-      button:hover { 
-        background: #0056b3; 
-      }
-      #output, .error-msg { 
-        margin-top: 10px; 
-        color: red; 
-        font-weight: bold;
-      }
-      .success-msg { 
-        color: green; 
-        font-weight: bold; 
-      }
-      .warning-msg { 
-        color: orange; 
-        font-weight: bold; 
-      }
-      .debug-info {
-        background: #2d3748;
-        color: #68d391;
         padding: 10px;
-        font-family: monospace;
-        border-radius: 4px;
-        margin: 10px 0;
-        white-space: pre-wrap;
       }
-      iframe {
-        width: 100%;
-        height: 200px;
-        border: 1px solid #ddd;
-        margin: 10px 0;
+    }
+
+    /* Animation for dangerous operations */
+    .dangerous-operation {
+      animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <h1>🛡️ Client-Side VAT Test Suite</h1>
+    <div class="subtitle">Comprehensive Browser Security Vulnerability Assessment</div>
+    <div class="warning-banner">
+      ⚠️ WARNING: This page contains 20 intentional client-side security vulnerabilities for testing purposes only
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="stats-panel">
+      <h2>Vulnerability Statistics</h2>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-number">20</div>
+          <div>Total Vulnerabilities</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">8</div>
+          <div>Injection Flaws</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">5</div>
+          <div>Data Exposure Issues</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">4</div>
+          <div>Authentication Flaws</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">3</div>
+          <div>Crypto Weaknesses</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="vulnerability-grid">
+      <!-- VULNERABILITY 1: DOM-based XSS -->
+      <div class="vuln-card">
+        <div class="vuln-header">
+          <div class="vuln-number">1</div>
+          <div class="vuln-title">DOM-based XSS</div>
+          <div class="vuln-category">Injection</div>
+        </div>
+        <div class="vuln-description">
+          User input directly inserted into DOM without sanitization
+        </div>
+        <div class="test-controls">
+          <input type="text" id="domXssInput" placeholder="Try: <img src=x onerror=alert('XSS')>" style="width: 70%;">
+          <button onclick="executeDOMXss()">Execute</button>
+        </div>
+        <div id="domXssResult" class="result-display"></div>
+      </div>
+
+      <!-- VULNERABILITY 2: Reflected XSS via URL -->
+      <div class="vuln-card">
+        <div class="vuln-header">
+          <div class="vuln-number">2</div>
+          <div class="vuln-title">Reflected XSS</div>
+          <div class="vuln-category">Injection</div>
+        </div>
+        <div class="vuln-description">
+          URL parameters reflected in page without encoding
+        </div>
+        <div class="test-controls">
+          <input type="text" id="reflectedInput" placeholder="Try: <script>alert('Reflected')</script>" style="width: 70%;">
+          <button onclick="executeReflectedXss()">Reflect</button>
+        </div>
+        <div id="reflectedResult" class="result-display"></div>
+      </div>
+
+      <!-- VULNERABILITY 3: Client-side SQL Injection -->
+      <div class="vuln-card">
+        <div class="vuln-header">
+          <div class="vuln-number">3</div>
+          <div class="vuln-title">Client-side SQL Injection</div>
+          <div class="vuln-category">Injection</div>
+        </div>
+        <div class="vuln-description">
+          SQL queries constructed with user input in JavaScript
+        </div>
+        <div class="test-controls">
+          <input type="text" id="sqlInput" placeholder="Try: 1' OR '1'='1" style="width: 70%;">
+          <button onclick="executeClientSQL()">Query</button>
+        </div>
+        <div id="sqlResult" class="result-display"></div>
+      </div>
+
+      <!-- VULNERABILITY 4: eval() Code Injection -->
+      <div class="vuln-card">
+        <div class="vuln-header">
+          <div class="vuln-number">4</div>
+          <div class="vuln-title">eval() Code Injection</div>
+          <div class="vuln-category">Code Execution</div>
+        </div>
+        <div class="vuln-description">
+          User input passed directly to eval() function
+        </div>
+        <div class="test-controls">
+          <input type="text" id="evalInput" placeholder="Try: alert('Code Injected')" style="width: 70%;">
+          <button class="danger" onclick="executeEval()">Evaluate</button>
+        </div>
+        <div id="evalResult" class="result-display"></div>
+      </div>
+
+      <!-- VULNERABILITY 5: innerHTML Injection -->
+      <div class="vuln-card">
+        <div class="vuln-header">
+          <div class="vuln-number">5</div>
+          <div class="vuln-title">innerHTML Injection</div>
+          <div class="vuln-category">DOM Manipulation</div>
+        </div>
+        <div class="vuln-description">
+          Unsanitized content inserted via innerHTML property
+        </div>
+        <div class="test-controls">
+          <input type="text" id="innerHTMLInput" placeholder="Try: <svg onload=alert('innerHTML')>" style="width: 70%;">
+          <button onclick="executeInnerHTML()">Insert HTML</button>
+        </div>
+        <div id="innerHTMLResult" class="result-display"></div>
+      </div>
+
+      <!-- VULNERABILITY 6: document.write() Injection -->
+      <div class="vuln-card">
+        <div class="vuln-header">
+          <div class="vuln-number">6</div>
+          <div class="vuln-title">document.write() Injection</div>
+          <div class="vuln-category">Legacy DOM</div>
+        </div>
+        <div class="vuln-description">
+          Legacy document.write() with unsanitized input
+        </div>
+        <div class="test-controls">
+          <input type="text" id="docWriteInput" placeholder="Try: <script>alert('docwrite')</script>" style="width: 70%;">
+          <button onclick="executeDocWrite()">Write Document</button>
+        </div>
+        <div id="docWriteResult" class="result-display"></div>
+      </div>
+
+      <!-- VULNERABILITY 7: Insecure localStorage -->
+      <div class="vuln-card">
+        <div class="vuln-header">
+          <div class="vuln-number">7</div>
+          <div class="vuln-title">Insecure localStorage</div>
+          <div class="vuln-category">Data Storage</div>
+        </div>
+        <div class="vuln-description">
+          Sensitive data stored in browser localStorage without encryption
+        </div>
+        <div class="test-controls">
+          <input type="text" id="localStorageKey" placeholder="Key" style="width: 30%;">
+          <input type="text" id="localStorageValue" placeholder="Sensitive Value" style="width: 35%;">
+          <button onclick="storeLocalData()">Store</button>
+          <button onclick="showLocalData()">Show All</button>
+        </div>
+        <div id="localStorageResult" class="result-display"></div>
+      </div>
+
+      <!-- VULNERABILITY 8: Insecure sessionStorage -->
+      <div class="vuln-card">
+        <div class="vuln-header">
+          <div class="vuln-number">8</div>
+          <div class="vuln-title">Insecure sessionStorage</div>
+          <div class="vuln-category">Data Storage</div>
+        </div>
+        <div class="vuln-description">
+          Session data stored without proper protection mechanisms
+        </div>
+        <div class="test-controls">
+          <input type="text" id="sessionKey" placeholder="Session Key" style="width: 45%;">
+          <input type="text" id="sessionValue" placeholder="Session Data" style="width: 45%;">
+          <button onclick="storeSessionData()">Store Session</button>
+        </div>
+        <div id="sessionStorageResult" class="result-display"></div>
+      </div>
+
+      <!-- VULNERABILITY 9: Insecure Cookies -->
+      <div class="vuln-card">
+        <div class="vuln-header">
+          <div class="vuln-number">9</div>
+          <div class="vuln-title">Insecure Cookies</div>
+          <div class="vuln-category">Session Management</div>
+        </div>
+        <div class="vuln-description">
+          Cookies without HttpOnly, Secure, or SameSite attributes
+        </div>
+        <div class="test-controls">
+          <button onclick="setInsecureCookies()">Set Insecure Cookies</button>
+          <button onclick="showAllCookies()">Show Cookies</button>
+          <button onclick="clearAllCookies()">Clear Cookies</button>
+        </div>
+        <div id="cookieResult" class="result-display"></div>
+      </div>
+
+      <!-- VULNERABILITY 10: Clickjacking -->
+      <div class="vuln-card">
+        <div class="vuln-header">
+          <div class="vuln-number">10</div>
+          <div class="vuln-title">Clickjacking Vulnerability</div>
+          <div class="vuln-category">UI Redress</div>
+        </div>
+        <div class="vuln-description">
+          Page can be embedded in iframe - no X-Frame-Options header
+        </div>
+        <div class="test-controls">
+          <button onclick="demonstrateClickjacking()">Create Vulnerable Frame</button>
+          <button onclick="testFrameOptions()">Test Frame Options</button>
+        </div>
+        <div class="clickjack-demo" id="clickjackDemo">
+          <div class="clickjack-overlay">Click here to test clickjacking</div>
+        </div>
+      </div>
+
+      <!-- VULNERABILITY 11: Open Redirect (Client) -->
+      <div class="vuln-card">
+        <div class="vuln-header">
+          <div class="vuln-number">11</div>
+          <div class="vuln-title">Open Redirect (Client)</div>
+          <div class="vuln-category">URL Manipulation</div>
+        </div>
+        <div class="vuln-description">
+          Client-side redirects without URL validation
+        </div>
+        <div class="test-controls">
+          <input type="text" id="redirectURL" placeholder="Try: javascript:alert('Redirect')" style="width: 70%;">
+          <button onclick="performClientRedirect()">Redirect</button>
+        </div>
+        <div id="redirectResult" class="result-display"></div>
+      </div>
+
+      <!-- VULNERABILITY 12: CSRF Token Bypass -->
+      <div class="vuln-card">
+        <div class="vuln-header">
+          <div class="vuln-number">12</div>
+          <div class="vuln-title">CSRF Token Bypass</div>
+          <div class="vuln-category">Authentication</div>
+        </div>
+        <div class="vuln-description">
+          Forms without CSRF protection tokens
+        </div>
+        <div class="test-controls">
+          <input type="text" placeholder="Username" style="width: 45%;">
+          <input type="password" placeholder="Password" style="width: 45%;">
+          <button onclick="submitWithoutCSRF()">Submit (No CSRF)</button>
+        </div>
+        <div id="csrfResult" class="result-display"></div>
+      </div>
+
+      <!-- VULNERABILITY 13: Weak Random Generation -->
+      <div class="vuln-card">
+        <div class="vuln-header">
+          <div class="vuln-number">13</div>
+          <div class="vuln-title">Weak Random Generation</div>
+          <div class="vuln-category">Cryptography</div>
+        </div>
+        <div class="vuln-description">
+          Using Math.random() for security-sensitive operations
+        </div>
+        <div class="test-controls">
+          <button onclick="generateWeakToken()">Generate Token</button>
+          <button onclick="generateWeakPassword()">Generate Password</button>
+          <button onclick="generateWeakSessionID()">Generate Session ID</button>
+        </div>
+        <div id="randomResult" class="result-display"></div>
+      </div>
+
+      <!-- VULNERABILITY 14: Insecure Crypto (Base64) -->
+      <div class="vuln-card">
+        <div class="vuln-header">
+          <div class="vuln-number">14</div>
+          <div class="vuln-title">Insecure Crypto (Base64)</div>
+          <div class="vuln-category">Cryptography</div>
+        </div>
+        <div class="vuln-description">
+          Using Base64 encoding as encryption for sensitive data
+        </div>
+        <div class="test-controls">
+          <input type="text" id="cryptoInput" placeholder="Sensitive data to 'encrypt'" style="width: 70%;">
+          <button onclick="fakeEncrypt()">Encrypt (Base64)</button>
+          <button onclick="fakeDecrypt()">Decrypt</button>
+        </div>
+        <div id="cryptoResult" class="result-display"></div>
+      </div>
+
+      <!-- VULNERABILITY 15: Information Disclosure -->
+      <div class="vuln-card">
+        <div class="vuln-header">
+          <div class="vuln-number">15</div>
+          <div class="vuln-title">Information Disclosure</div>
+          <div class="vuln-category">Data Exposure</div>
+        </div>
+        <div class="vuln-description">
+          Exposing sensitive system and user information
+        </div>
+        <div class="test-controls">
+          <button onclick="exposeSystemInfo()">System Info</button>
+          <button onclick="exposeBrowserInfo()">Browser Info</button>
+          <button onclick="exposeNetworkInfo()">Network Info</button>
+        </div>
+        <div id="infoDisclosureResult" class="result-display"></div>
+      </div>
+
+      <!-- VULNERABILITY 16: Prototype Pollution -->
+      <div class="vuln-card">
+        <div class="vuln-header">
+          <div class="vuln-number">16</div>
+          <div class="vuln-title">Prototype Pollution</div>
+          <div class="vuln-category">Object Manipulation</div>
+        </div>
+        <div class="vuln-description">
+          Unsafe object manipulation allowing prototype pollution
+        </div>
+        <div class="test-controls">
+          <input type="text" id="protoKey" placeholder="Property name" style="width: 45%;">
+          <input type="text" id="protoValue" placeholder="Property value" style="width: 45%;">
+          <button onclick="pollutePrototype()">Pollute Prototype</button>
+        </div>
+        <div id="prototypeResult" class="result-display"></div>
+      </div>
+
+      <!-- VULNERABILITY 17: postMessage Vulnerabilities -->
+      <div class="vuln-card">
+        <div class="vuln-header">
+          <div class="vuln-number">17</div>
+          <div class="vuln-title">postMessage Vulnerabilities</div>
+          <div class="vuln-category">Cross-Frame Comm</div>
+        </div>
+        <div class="vuln-description">
+          Unsafe cross-frame communication without origin validation
+        </div>
+        <div class="test-controls">
+          <input type="text" id="messageData" placeholder="Message data" style="width: 70%;">
+          <button onclick="sendUnsafeMessage()">Send Message</button>
+          <button onclick="listenForMessages()">Listen (Unsafe)</button>
+        </div>
+        <div id="postMessageResult" class="result-display"></div>
+      </div>
+
+      <!-- VULNERABILITY 18: Insecure JSON Parsing -->
+      <div class="vuln-card">
+        <div class="vuln-header">
+          <div class="vuln-number">18</div>
+          <div class="vuln-title">Insecure JSON Parsing</div>
+          <div class="vuln-category">Deserialization</div>
+        </div>
+        <div class="vuln-description">
+          Parsing untrusted JSON without validation
+        </div>
+        <div class="test-controls">
+          <textarea id="jsonInput" placeholder='Try: {"__proto__": {"admin": true}}' rows="3" style="width: 100%;"></textarea>
+          <button onclick="parseUnsafeJSON()">Parse JSON</button>
+        </div>
+        <div id="jsonParseResult" class="result-display"></div>
+      </div>
+
+      <!-- VULNERABILITY 19: Client-Side Path Traversal -->
+      <div class="vuln-card">
+        <div class="vuln-header">
+          <div class="vuln-number">19</div>
+          <div class="vuln-title">Client-Side Path Traversal</div>
+          <div class="vuln-category">File Access</div>
+        </div>
+        <div class="vuln-description">
+          Unsafe file path construction in client-side code
+        </div>
+        <div class="test-controls">
+          <input type="text" id="filePathInput" placeholder="Try: ../../../sensitive.txt" style="width: 70%;">
+          <button onclick="accessClientFile()">Access File</button>
+        </div>
+        <div id="pathTraversalResult" class="result-display"></div>
+      </div>
+
+      <!-- VULNERABILITY 20: Unsafe Dynamic Loading -->
+      <div class="vuln-card">
+        <div class="vuln-header">
+          <div class="vuln-number">20</div>
+          <div class="vuln-title">Unsafe Dynamic Loading</div>
+          <div class="vuln-category">Code Injection</div>
+        </div>
+        <div class="vuln-description">
+          Dynamically loading scripts from user-controlled sources
+        </div>
+        <div class="test-controls">
+          <input type="text" id="scriptURL" placeholder="Try: data:text/javascript,alert('Dynamic')" style="width: 70%;">
+          <button class="danger" onclick="loadDynamicScript()">Load Script</button>
+        </div>
+        <div id="dynamicLoadResult" class="result-display"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>🔒 Client-Side VAT Test Suite - For Security Testing Purposes Only</p>
+    <p>⚠️ This page intentionally contains security vulnerabilities - Do not use in production</p>
+    <p>Compatible with Qualys SSL Labs and other security scanning tools</p>
+  </div>
+
+  <script>
+    // Global variables for vulnerability demonstrations
+    let vulnerabilityCount = 0;
+    let exploitAttempts = 0;
+    let lastEncryptedData = '';
+    
+    // VULNERABILITY 7 & 8: Pre-populate insecure storage
+    if (typeof(Storage) !== "undefined") {
+      localStorage.setItem('userToken', 'eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkFkbWluIFVzZXIiLCJpYXQiOjE1MTYyMzkwMjIsImFkbWluIjp0cnVlfQ.');
+      localStorage.setItem('apiKey', 'sk-live-abc123def456ghi789');
+      localStorage.setItem('password', 'admin123');
+      localStorage.setItem('creditCard', '4111-1111-1111-1111');
+      localStorage.setItem('socialSecurity', '123-45-6789');
+      
+      sessionStorage.setItem('sessionToken', 'sess_abc123def456');
+      sessionStorage.setItem('userRole', 'administrator');
+      sessionStorage.setItem('internalIP', '192.168.1.100');
+    }
+
+    // VULNERABILITY 9: Set insecure cookies on page load
+    document.cookie = "sessionId=abc123def456; path=/";
+    document.cookie = "isAdmin=true; path=/";
+    document.cookie = "authToken=bearer_xyz789; path=/";
+    document.cookie = "userPrefs=admin:true,debug:on; path=/";
+
+    // VULNERABILITY 1: DOM-based XSS
+    function executeDOMXss() {
+      const input = document.getElementById('domXssInput').value;
+      const resultDiv = document.getElementById('domXssResult');
+      
+      // Directly insert user input - VULNERABLE
+      resultDiv.innerHTML = "User Input: " + input;
+      resultDiv.className = 'result-display warning';
+      logVulnerability('DOM-based XSS executed');
+    }
+
+    // VULNERABILITY 2: Reflected XSS
+    function executeReflectedXss() {
+      const input = document.getElementById('reflectedInput').value;
+      const resultDiv = document.getElementById('reflectedResult');
+      
+      // Simulate reflected XSS by updating URL and displaying
+      const newUrl = window.location.href.split('?')[0] + '?search=' + encodeURIComponent(input);
+      history.pushState({}, '', newUrl);
+      
+      // Display reflected content - VULNERABLE
+      resultDiv.innerHTML = "Search results for: " + input;
+      resultDiv.className = 'result-display error';
+      logVulnerability('Reflected XSS executed');
+    }
+
+    // VULNERABILITY 3: Client-side SQL Injection
+    function executeClientSQL() {
+      const input = document.getElementById('sqlInput').value;
+      const resultDiv = document.getElementById('sqlResult');
+      
+      // Simulate client-side SQL construction - VULNERABLE
+      const query = `SELECT * FROM users WHERE id = ${input}`;
+      
+      resultDiv.innerHTML = `
+        <div class="debug-info">Executing Query: ${query}
+        
+Simulated Results:
+${input.includes("'") || input.includes("OR") ? 
+  "admin | admin@site.com | true\nuser1 | user1@site.com | false\nuser2 | user2@site.com | false" : 
+  "user1 | user1@site.com | false"}
+        </div>
+      `;
+      resultDiv.className = 'result-display error';
+      logVulnerability('Client-side SQL Injection executed');
+    }
+
+    // VULNERABILITY 4: eval() Code Injection
+    function executeEval() {
+      const input = document.getElementById('evalInput').value;
+      const resultDiv = document.getElementById('evalResult');
+      
+      try {
+        // DANGEROUS: Direct eval of user input
+        const result = eval(input);
+        resultDiv.innerHTML = `<div class="debug-info">Evaluated: ${input}\nResult: ${result}</div>`;
+        resultDiv.className = 'result-display error dangerous-operation';
+        logVulnerability('eval() code injection executed');
+      } catch (e) {
+        resultDiv.innerHTML = `<div class="error">Eval Error: ${e.message}</div>`;
+        resultDiv.className = 'result-display error';
       }
-      main {
-        margin: 2rem 0;
+    }
+
+    // VULNERABILITY 5: innerHTML Injection
+    function executeInnerHTML() {
+      const input = document.getElementById('innerHTMLInput').value;
+      const resultDiv = document.getElementById('innerHTMLResult');
+      
+      // VULNERABLE: Direct innerHTML assignment
+      resultDiv.innerHTML = `<div>Inserted HTML: ${input}</div>`;
+      resultDiv.className = 'result-display warning';
+      logVulnerability('innerHTML injection executed');
+    }
+
+    // VULNERABILITY 6: document.write() Injection
+    function executeDocWrite() {
+      const input = document.getElementById('docWriteInput').value;
+      const resultDiv = document.getElementById('docWriteResult');
+      
+      // DANGEROUS: Using document.write with user input
+      const writeContent = `<div style="color: red;">Document Write: ${input}</div>`;
+      
+      // Create a new document context to demonstrate
+      const popup = window.open('', 'docwrite', 'width=400,height=300');
+      popup.document.write(writeContent);
+      popup.document.close();
+      
+      resultDiv.innerHTML = `<div class="warning">Document written to popup window</div>`;
+      resultDiv.className = 'result-display warning';
+      logVulnerability('document.write() injection executed');
+    }
+
+    // VULNERABILITY 7: Insecure localStorage
+    function storeLocalData() {
+      const key = document.getElementById('localStorageKey').value;
+      const value = document.getElementById('localStorageValue').value;
+      
+      if (key && value) {
+        localStorage.setItem(key, value);
+        showLocalData();
+        logVulnerability('Sensitive data stored in localStorage');
       }
-    </style>
-  </body>
+    }
+
+    function showLocalData() {
+      const resultDiv = document.getElementById('localStorageResult');
+      let storageData = '<div class="debug-info">LocalStorage Contents:\n';
+      
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        const value = localStorage.getItem(key);
+        storageData += `${key}: ${value}\n`;
+      }
+      storageData += '</div>';
+      
+      resultDiv.innerHTML = storageData;
+      resultDiv.className = 'result-display info';
+    }
+
+    // VULNERABILITY 8: Insecure sessionStorage
+    function storeSessionData() {
+      const key = document.getElementById('sessionKey').value;
+      const value = document.getElementById('sessionValue').value;
+      
+      if (key && value) {
+        sessionStorage.setItem(key, value);
+        
+        const resultDiv = document.getElementById('sessionStorageResult');
+        let sessionData = '<div class="debug-info">SessionStorage Contents:\n';
+        
+        for (let i = 0; i < sessionStorage.length; i++) {
+          const storageKey = sessionStorage.key(i);
+          const storageValue = sessionStorage.getItem(storageKey);
+          sessionData += `${storageKey}: ${storageValue}\n`;
+        }
+        sessionData += '</div>';
+        
+        resultDiv.innerHTML = sessionData;
+        resultDiv.className = 'result-display info';
+        logVulnerability('Sensitive data stored in sessionStorage');
+      }
+    }
+
+    // VULNERABILITY 9: Insecure Cookies
+    function setInsecureCookies() {
+      // Set various insecure cookies
+      document.cookie = "adminAccess=true; path=/";
+      document.cookie = "debugMode=enabled; path=/";
+      document.cookie = "internalToken=xyz789abc123; path=/";
+      document.cookie = "creditCardLast4=1111; path=/";
+      
+      showAllCookies();
+      logVulnerability('Insecure cookies set');
+    }
+
+    function showAllCookies() {
+      const resultDiv = document.getElementById('cookieResult');
+      const cookies = document.cookie.split(';');
+      
+      let cookieDisplay = '<div class="debug-info">Current Cookies:\n';
+      cookies.forEach(cookie => {
+        cookieDisplay += cookie.trim() + '\n';
+      });
+      cookieDisplay += '\n⚠️ No HttpOnly, Secure, or SameSite flags!</div>';
+      
+      resultDiv.innerHTML = cookieDisplay;
+      resultDiv.className = 'result-display warning';
+    }
+
+    function clearAllCookies() {
+      const cookies = document.cookie.split(";");
+      for (let cookie of cookies) {
+        const eqPos = cookie.indexOf("=");
+        const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+      }
+      showAllCookies();
+    }
+
+    // VULNERABILITY 10: Clickjacking
+    function demonstrateClickjacking() {
+      const demoDiv = document.getElementById('clickjackDemo');
+      demoDiv.innerHTML = `
+        <iframe src="data:text/html,<html><body style='background: lightblue; padding: 20px;'><h2>Legitimate Banking Site</h2><button onclick='alert(\"You just transferred $1000!\")' style='background: green; color: white; padding: 10px;'>Click to Login</button></body></html>" 
+                style="width: 100%; height: 100%; border: none;"></iframe>
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                    background: rgba(255,0,0,0.3); padding: 20px; color: white; font-weight: bold;">
+          MALICIOUS OVERLAY - Click to win $1000!
+        </div>
+      `;
+      logVulnerability('Clickjacking demonstration created');
+    }
+
+    function testFrameOptions() {
+      const resultDiv = document.getElementById('clickjackDemo');
+      resultDiv.innerHTML = `
+        <div class="debug-info">Frame Options Test:
+X-Frame-Options: NONE ❌
+Content-Security-Policy frame-ancestors: NONE ❌
+        
+This page CAN be embedded in frames from any origin!
+        </div>
+      `;
+    }
+
+    // VULNERABILITY 11: Open Redirect (Client)
+    function performClientRedirect() {
+      const url = document.getElementById('redirectURL').value;
+      const resultDiv = document.getElementById('redirectResult');
+      
+      // VULNERABLE: No URL validation
+      resultDiv.innerHTML = `<div class="warning">Would redirect to: ${url}<br>⚠️ No URL validation performed!</div>`;
+      
+      // Simulate redirect (safely for demo)
+      if (url.startsWith('javascript:')) {
+        resultDiv.innerHTML += `<div class="error">DANGEROUS: JavaScript URL detected!</div>`;
+        // Don't actually execute for safety
+      } else {
+        resultDiv.innerHTML += `<div class="info">Redirect blocked for safety in demo</div>`;
+      }
+      
+      resultDiv.className = 'result-display error';
+      logVulnerability('Open redirect attempted');
+    }
+
+    // VULNERABILITY 12: CSRF Token Bypass
+    function submitWithoutCSRF() {
+      const resultDiv = document.getElementById('csrfResult');
+      
+      // Simulate form submission without CSRF token
+      const formData = {
+        username: document.querySelector('#csrfResult').parentElement.querySelector('input[placeholder="Username"]')?.value || 'admin',
+        password: 'hidden_password',
+        action: 'transfer_funds',
+        amount: '1000',
+        to_account: 'attacker_account'
+      };
+      
+      resultDiv.innerHTML = `
+        <div class="debug-info">Form Submitted Without CSRF Protection:
+${JSON.stringify(formData, null, 2)}
+
+⚠️ No CSRF token validation!
+Any malicious site can submit this form.
+        </div>
+      `;
+      resultDiv.className = 'result-display error';
+      logVulnerability('CSRF protection bypassed');
+    }
+
+    // VULNERABILITY 13: Weak Random Generation
+    function generateWeakToken() {
+      // WEAK: Using Math.random() for security token
+      const token = 'token_' + Math.random().toString(36).substring(2);
+      updateRandomResult(`Security Token: ${token}`, 'Weak random token generated');
+    }
+
+    function generateWeakPassword() {
+      // WEAK: Predictable password generation
+      const chars = 'abcdefghijklmnopqrstuvwxyz';
+      let password = '';
+      for (let i = 0; i < 8; i++) {
+        password += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      updateRandomResult(`Generated Password: ${password}`, 'Weak random password generated');
+    }
+
+    function generateWeakSessionID() {
+      // WEAK: Predictable session ID
+      const sessionId = 'sess_' + Math.floor(Math.random() * 1000000);
+      updateRandomResult(`Session ID: ${sessionId}`, 'Weak random session ID generated');
+    }
+
+    function updateRandomResult(content, logMessage) {
+      const resultDiv = document.getElementById('randomResult');
+      resultDiv.innerHTML = `<div class="debug-info">${content}\n\n⚠️ Using Math.random() - cryptographically weak!</div>`;
+      resultDiv.className = 'result-display warning';
+      logVulnerability(logMessage);
+    }
+
+    // VULNERABILITY 14: Insecure Crypto (Base64)
+    function fakeEncrypt() {
+      const input = document.getElementById('cryptoInput').value;
+      if (input) {
+        // INSECURE: Using Base64 as "encryption"
+        lastEncryptedData = btoa(input);
+        
+        const resultDiv = document.getElementById('cryptoResult');
+        resultDiv.innerHTML = `
+          <div class="debug-info">Original: ${input}
+"Encrypted": ${lastEncryptedData}
+
+⚠️ This is just Base64 encoding, not encryption!
+          </div>
+        `;
+        resultDiv.className = 'result-display error';
+        logVulnerability('Insecure Base64 "encryption" used');
+      }
+    }
+
+    function fakeDecrypt() {
+      if (lastEncryptedData) {
+        try {
+          const decrypted = atob(lastEncryptedData);
+          const resultDiv = document.getElementById('cryptoResult');
+          resultDiv.innerHTML = `
+            <div class="debug-info">"Encrypted": ${lastEncryptedData}
+Decrypted: ${decrypted}
+
+⚠️ Anyone can decode Base64!
+            </div>
+          `;
+          resultDiv.className = 'result-display error';
+        } catch (e) {
+          document.getElementById('cryptoResult').innerHTML = `<div class="error">Decryption failed: ${e.message}</div>`;
+        }
+      } else {
+        document.getElementById('cryptoResult').innerHTML = `<div class="warning">No data to decrypt. Encrypt something first.</div>`;
+      }
+    }
+
+    // VULNERABILITY 15: Information Disclosure
+    function exposeSystemInfo() {
+      const info = {
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        language: navigator.language,
+        languages: navigator.languages,
+        cookieEnabled: navigator.cookieEnabled,
+        doNotTrack: navigator.doNotTrack,
+        hardwareConcurrency: navigator.hardwareConcurrency,
+        maxTouchPoints: navigator.maxTouchPoints,
+        vendor: navigator.vendor,
+        vendorSub: navigator.vendorSub
+      };
+      
+      displayInfoDisclosure('System Information', info);
+    }
+
+    function exposeBrowserInfo() {
+      const info = {
+        screen: {
+          width: screen.width,
+          height: screen.height,
+          colorDepth: screen.colorDepth,
+          pixelDepth: screen.pixelDepth
+        },
+        window: {
+          innerWidth: window.innerWidth,
+          innerHeight: window.innerHeight,
+          outerWidth: window.outerWidth,
+          outerHeight: window.outerHeight
+        },
+        location: {
+          href: location.href,
+          protocol: location.protocol,
+          host: location.host,
+          port: location.port
+        },
+        document: {
+          domain: document.domain,
+          referrer: document.referrer,
+          title: document.title
+        }
+      };
+      
+      displayInfoDisclosure('Browser Information', info);
+    }
+
+    function exposeNetworkInfo() {
+      const info = {
+        connection: navigator.connection ? {
+          effectiveType: navigator.connection.effectiveType,
+          downlink: navigator.connection.downlink,
+          rtt: navigator.connection.rtt
+        } : 'Not available',
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        timestamp: new Date().toISOString(),
+        performance: {
+          memory: performance.memory ? {
+            usedJSHeapSize: performance.memory.usedJSHeapSize,
+            totalJSHeapSize: performance.memory.totalJSHeapSize,
+            jsHeapSizeLimit: performance.memory.jsHeapSizeLimit
+          } : 'Not available'
+        }
+      };
+      
+      displayInfoDisclosure('Network Information', info);
+    }
+
+    function displayInfoDisclosure(title, info) {
+      const resultDiv = document.getElementById('infoDisclosureResult');
+      resultDiv.innerHTML = `
+        <div class="debug-info">${title}:
+${JSON.stringify(info, null, 2)}
+
+⚠️ Sensitive information exposed to potential attackers!
+        </div>
+      `;
+      resultDiv.className = 'result-display error';
+      logVulnerability(`Information disclosure: ${title}`);
+    }
+
+    // VULNERABILITY 16: Prototype Pollution
+    function pollutePrototype() {
+      const key = document.getElementById('protoKey').value;
+      const value = document.getElementById('protoValue').value;
+      
+      if (key && value) {
+        // VULNERABLE: Prototype pollution
+        const maliciousObject = {};
+        maliciousObject['__proto__'][key] = value;
+        
+        // Merge with existing object to demonstrate pollution
+        const testObject = {};
+        Object.assign(testObject, maliciousObject);
+        
+        const resultDiv = document.getElementById('prototypeResult');
+        resultDiv.innerHTML = `
+          <div class="debug-info">Prototype Pollution Executed:
+Property: ${key}
+Value: ${value}
+
+Test: {}['${key}'] = ${{}[key]}
+
+⚠️ All objects now have this property!
+          </div>
+        `;
+        resultDiv.className = 'result-display error';
+        logVulnerability('Prototype pollution executed');
+      }
+    }
+
+    // VULNERABILITY 17: postMessage Vulnerabilities
+    function sendUnsafeMessage() {
+      const data = document.getElementById('messageData').value;
+      
+      // VULNERABLE: Sending message without origin restrictions
+      window.postMessage({
+        type: 'sensitive_data',
+        data: data,
+        userToken: localStorage.getItem('userToken'),
+        adminAccess: true
+      }, '*'); // Wildcard origin - DANGEROUS!
+      
+      const resultDiv = document.getElementById('postMessageResult');
+      resultDiv.innerHTML = `
+        <div class="debug-info">Message Sent:
+Data: ${data}
+Origin: * (wildcard - DANGEROUS!)
+
+⚠️ Message sent without origin validation!
+        </div>
+      `;
+      resultDiv.className = 'result-display error';
+      logVulnerability('Unsafe postMessage sent');
+    }
+
+    function listenForMessages() {
+      // VULNERABLE: No origin validation
+      window.addEventListener('message', function(event) {
+        // No origin check - accepts messages from anywhere!
+        const resultDiv = document.getElementById('postMessageResult');
+        resultDiv.innerHTML = `
+          <div class="debug-info">Message Received:
+Origin: ${event.origin}
+Data: ${JSON.stringify(event.data, null, 2)}
+
+⚠️ No origin validation performed!
+          </div>
+        `;
+        resultDiv.className = 'result-display error';
+      });
+      
+      document.getElementById('postMessageResult').innerHTML = `
+        <div class="success">Listening for messages from ANY origin...</div>
+      `;
+      logVulnerability('Unsafe postMessage listener activated');
+    }
+
+    // VULNERABILITY 18: Insecure JSON Parsing
+    function parseUnsafeJSON() {
+      const jsonString = document.getElementById('jsonInput').value;
+      
+      try {
+        // VULNERABLE: No validation before parsing
+        const parsed = JSON.parse(jsonString);
+        
+        // Demonstrate prototype pollution via JSON
+        const testObject = Object.assign({}, parsed);
+        
+        const resultDiv = document.getElementById('jsonParseResult');
+        resultDiv.innerHTML = `
+          <div class="debug-info">Parsed JSON:
+${JSON.stringify(parsed, null, 2)}
+
+Test Object Properties:
+${Object.getOwnPropertyNames(testObject).join(', ')}
+
+⚠️ JSON parsed without validation!
+          </div>
+        `;
+        resultDiv.className = 'result-display warning';
+        logVulnerability('Unsafe JSON parsing executed');
+      } catch (e) {
+        document.getElementById('jsonParseResult').innerHTML = `<div class="error">JSON Parse Error: ${e.message}</div>`;
+      }
+    }
+
+    // VULNERABILITY 19: Client-Side Path Traversal
+    function accessClientFile() {
+      const filePath = document.getElementById('filePathInput').value;
+      
+      // VULNERABLE: No path validation
+      const basePath = '/app/files/';
+      const fullPath = basePath + filePath;
+      
+      const resultDiv = document.getElementById('pathTraversalResult');
+      resultDiv.innerHTML = `
+        <div class="debug-info">File Access Attempt:
+Base Path: ${basePath}
+User Input: ${filePath}
+Full Path: ${fullPath}
+
+${filePath.includes('..') ? '⚠️ DIRECTORY TRAVERSAL DETECTED!' : 'Path appears safe'}
+
+Simulated File Contents:
+${simulateFileAccess(fullPath)}
+        </div>
+      `;
+      resultDiv.className = 'result-display error';
+      logVulnerability('Client-side path traversal attempted');
+    }
+
+    function simulateFileAccess(path) {
+      if (path.includes('../')) {
+        return `root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+
+⚠️ SENSITIVE SYSTEM FILE ACCESSED!`;
+      }
+      return 'Normal user file contents...';
+    }
+
+    // VULNERABILITY 20: Unsafe Dynamic Loading
+    function loadDynamicScript() {
+      const scriptUrl = document.getElementById('scriptURL').value;
+      
+      if (scriptUrl) {
+        const resultDiv = document.getElementById('dynamicLoadResult');
+        
+        // DANGEROUS: Loading script from user input
+        if (scriptUrl.startsWith('data:text/javascript,')) {
+          // Extract and display the JavaScript code
+          const jsCode = decodeURIComponent(scriptUrl.replace('data:text/javascript,', ''));
+          resultDiv.innerHTML = `
+            <div class="debug-info">Dynamic Script Loading:
+URL: ${scriptUrl}
+Code: ${jsCode}
+
+⚠️ DANGEROUS: Executing user-controlled JavaScript!
+            </div>
+          `;
+          
+          // For safety, we won't actually execute the script
+          resultDiv.innerHTML += `<div class="error">Execution blocked for safety in demo</div>`;
+        } else {
+          resultDiv.innerHTML = `
+            <div class="warning">Attempting to load script from: ${scriptUrl}
+            
+⚠️ No URL validation performed!
+Script loading blocked for safety in demo.
+            </div>
+          `;
+        }
+        
+        resultDiv.className = 'result-display error dangerous-operation';
+        logVulnerability('Unsafe dynamic script loading attempted');
+      }
+    }
+
+    // Utility Functions
+    function logVulnerability(message) {
+      exploitAttempts++;
+      console.log(`🚨 VULNERABILITY EXPLOITED: ${message}`);
+      console.log(`Total exploits attempted: ${exploitAttempts}`);
+      
+      // Update stats in real-time
+      updateVulnerabilityStats();
+    }
+
+    function updateVulnerabilityStats() {
+      // This could update a real-time stats display
+      console.log(`Vulnerability testing session: ${exploitAttempts} exploits attempted`);
+    }
+
+    // Initialize page
+    window.onload = function() {
+      console.log('🔓 VAT Test Suite Loaded - 20 Client-Side Vulnerabilities Available');
+      console.log('⚠️ This page contains intentional security vulnerabilities for testing');
+      
+      // Show initial storage contents
+      showLocalData();
+      showAllCookies();
+      
+      // VULNERABILITY 2: Check for reflected XSS in URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const searchParam = urlParams.get('search');
+      if (searchParam) {
+        document.getElementById('reflectedResult').innerHTML = 
+          `<div class="error">URL Parameter Reflected: ${searchParam}</div>`;
+      }
+      
+      // Display initial vulnerability count
+      console.log('Available vulnerabilities: DOM XSS, Reflected XSS, Client SQL Injection, eval() Injection, innerHTML Injection, document.write() Injection, Insecure localStorage, Insecure sessionStorage, Insecure Cookies, Clickjacking, Open Redirect, CSRF Bypass, Weak Random, Insecure Crypto, Info Disclosure, Prototype Pollution, postMessage Vulnerabilities, Unsafe JSON Parsing, Client Path Traversal, Unsafe Dynamic Loading');
+    };
+
+    // Global error handler for information disclosure
+    window.onerror = function(msg, url, line, col, error) {
+      console.error('🚨 EXPOSED ERROR DETAILS:', {
+        message: msg,
+        sourceURL: url,
+        line: line,
+        column: col,
+        stack: error ? error.stack : 'No stack available',
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        pageURL: window.location.href
+      });
+      return false;
+    };
+
+    // Unsafe global functions for demonstration
+    function unsafeGlobalFunction(input) {
+      // VULNERABLE: Global function that processes user input unsafely
+      return eval('(' + input + ')');
+    }
+
+    // Expose sensitive data globally
+    window.sensitiveConfig = {
+      apiKey: 'sk-live-prod-12345abcdef',
+      databaseUrl: 'postgresql://admin:password@db.internal:5432/production',
+      debugMode: true,
+      internalEndpoints: [
+        'http://internal-api.local/admin',
+        'http://192.168.1.100/management',
+        'http://localhost:8080/debug'
+      ]
+    };
+  </script>
+</body>
 </html>
